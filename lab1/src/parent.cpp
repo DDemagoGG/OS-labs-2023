@@ -26,6 +26,7 @@ void dup_fd(int oldfd, int newfd) {
 }
 
 void processes(std::istream &input){
+    const char* pathToChild = getenv("PATH_TO_CHILD");
     int pipe1_fd[2];
     create_pipe(pipe1_fd);
     std::string f;
@@ -34,7 +35,7 @@ void processes(std::istream &input){
     if (child == 0){
         close(pipe1_fd[1]);
         dup_fd(pipe1_fd[0], STDIN_FILENO);
-        execl("../build/child", "../build/child", f.c_str(), NULL);
+        execl(pathToChild, pathToChild, f.c_str(), NULL);
         close(pipe1_fd[0]);
     } else{
         int number;
@@ -43,4 +44,5 @@ void processes(std::istream &input){
         }
         close(pipe1_fd[0]);
         close(pipe1_fd[1]);
+    }
 }

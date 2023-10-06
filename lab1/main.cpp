@@ -1,8 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <fstream>
-
-void processes(std::istream &input);
+#include "parent.hpp"
 
 int main(){
     processes(std::cin);
