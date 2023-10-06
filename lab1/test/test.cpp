@@ -7,8 +7,6 @@ int check(std::string const input){
     std::istringstream buf("test " + input);
     std::istream is(buf.rdbuf());
     processes(is);
-    int status;
-    wait(&status);
     std::fstream f;
     f.open("test");
     int res;
@@ -34,9 +32,4 @@ TEST(basic_test_set, test_04){
 
 TEST(basic_test_set, test_05){
     ASSERT_EQ(check("-99 9394 0 14234 11111 23233 34523 43523 12412"), 148331);
-}
-
-int main(int argc, char **argv) {
-    testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }

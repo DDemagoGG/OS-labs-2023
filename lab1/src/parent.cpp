@@ -1,6 +1,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <fstream>
+#include "parent.hpp"
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int fork_process(){
     pid_t pid = fork();
@@ -44,5 +47,7 @@ void processes(std::istream &input){
             write(pipe1_fd[1], &number, sizeof(int));
         }
         close(pipe1_fd[1]);
+        int status;
+        wait(&status);
     }
 }

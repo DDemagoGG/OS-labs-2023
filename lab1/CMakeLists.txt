@@ -14,4 +14,5 @@ add_executable(child ./src/child.cpp)
 
 enable_testing()
 add_executable(tests ./test/test.cpp ./src/parent.cpp)
-target_link_libraries(tests ${GTEST_LIBRARIES})
+target_link_libraries(GTest::GTest INTERFACE gtest_main)
+target_link_libraries(tests PRIVATE GTest::GTest)
