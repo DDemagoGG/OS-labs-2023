@@ -35,14 +35,14 @@ void processes(std::istream &input){
     if (child == 0){
         close(pipe1_fd[1]);
         dup_fd(pipe1_fd[0], STDIN_FILENO);
-        execl(pathToChild, pathToChild, f.c_str(), NULL);
+        execl(pathToChild, pathToChild, f.c_str(), nullptr);
         close(pipe1_fd[0]);
     } else{
+        close(pipe1_fd[0]);
         int number;
         while (input >> number){
             write(pipe1_fd[1], &number, sizeof(int));
         }
-        close(pipe1_fd[0]);
         close(pipe1_fd[1]);
     }
 }
