@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
-#include <iostream>
 #include <unistd.h>
 #include <fstream>
-
-void processes(std::istream &input);
+#include "parent.hpp"
 
 TEST(basic_test_set, test_01){
     std::fstream f;
