@@ -15,8 +15,5 @@ int main(int argc, char* argv[]){
         sum += buf;
     }
     res << sum;
-    res.close();
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
     return 0;
 }
