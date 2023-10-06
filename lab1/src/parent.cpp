@@ -26,20 +26,16 @@ void dup_fd(int oldfd, int newfd) {
 }
 
 void processes(std::istream &input){
-    int pipe1_fd[2], pipe2_fd[2];
+    int pipe1_fd[2];
     create_pipe(pipe1_fd);
-    create_pipe(pipe2_fd);
     std::string f;
     input >> f;
     pid_t child = fork_process();
     if (child == 0){
         close(pipe1_fd[1]);
-        close(pipe2_fd[0]);
-        dup_fd(pipe2_fd[1], STDOUT_FILENO);
         dup_fd(pipe1_fd[0], STDIN_FILENO);
         execl("../build/child", "../build/child", f.c_str(), NULL);
         close(pipe1_fd[0]);
-        close(pipe2_fd[1]);
     } else{
         int number;
         while (input >> number){
@@ -47,7 +43,4 @@ void processes(std::istream &input){
         }
         close(pipe1_fd[0]);
         close(pipe1_fd[1]);
-        close(pipe2_fd[0]);
-        close(pipe2_fd[1]);
-    }
 }
