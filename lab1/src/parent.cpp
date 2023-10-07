@@ -4,6 +4,7 @@
 #include "parent.hpp"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sstream>
 
 int fork_process(){
     pid_t pid = fork();
@@ -28,12 +29,44 @@ void dup_fd(int oldfd, int newfd) {
     }
 }
 
+
+
+ std::string isValidInput(std::istream &input){
+    std::string s;
+    getline(input, s);
+    int thereIsNumbers = 0;
+    int minusCounter = 0;
+    for (char c : s){
+        if (c != '-' and !isdigit(c) and c != ' '){
+            perror("Invalid input!");
+            exit(-1);
+        } else if (c == '-'){
+            minusCounter++;
+        } else if (c == ' '){
+            if (minusCounter){
+                perror("Invalid input!");
+                exit(-1);
+            }
+        } else{
+            minusCounter = 0;
+            thereIsNumbers = 1;
+        }
+    }
+    if (!thereIsNumbers){
+        perror("Invalid input!");
+        exit(-1);
+    }
+    return s;
+}
+
 void processes(std::istream &input){
     const char* pathToChild = getenv("PATH_TO_CHILD");
     int pipe1_fd[2];
     create_pipe(pipe1_fd);
     std::string f;
     input >> f;
+    std::istringstream buf(isValidInput(input));
+    std::istream validInput(buf.rdbuf());
     pid_t child = fork_process();
     if (child == 0){
         close(pipe1_fd[1]);
@@ -43,7 +76,7 @@ void processes(std::istream &input){
     } else{
         close(pipe1_fd[0]);
         int number;
-        while (input >> number){
+        while (validInput >> number){
             write(pipe1_fd[1], &number, sizeof(int));
         }
         close(pipe1_fd[1]);
