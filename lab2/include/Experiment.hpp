@@ -6,6 +6,7 @@
 struct experiment{
     int * base;
     double * win1;
+    pthread_mutex_t mutex;
 };
 
 void thread_create(pthread_t* thread, const pthread_attr_t* attr, void *(*start)(void *), void* arg);

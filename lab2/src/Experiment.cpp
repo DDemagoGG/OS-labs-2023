@@ -52,8 +52,6 @@ double doExperiment(int K, int curRound, int firstPoints, int secondPoints){
 }
 
 void* doExperiments(void* input){
-    pthread_mutex_t mutex;
-    mutex_create(&mutex, nullptr);
     experiment* data = (experiment *) input;
     int K = data->base[0];
     int curRound = data->base[1];
@@ -64,10 +62,9 @@ void* doExperiments(void* input){
     for (int i = 0; i < testsNum; i++){
         res += doExperiment(K, curRound, firstPoints, secondPoints);
     }
-    mutex_lock(&mutex);
+    mutex_lock(&data->mutex);
     *data->win1 += res;
-    mutex_unlock(&mutex);
-    mutex_delete(&mutex);
+    mutex_unlock(&data->mutex);
     return 0;
 }
 
@@ -80,6 +77,7 @@ double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoi
     argList.base[2] = firstPoints;
     argList.base[3] = secondPoints;
     argList.base[4] = testsNum;
+    mutex_create(&argList.mutex, nullptr);
     double win1 = 0;
     argList.win1 = &win1;
     if (threadsNum > 1){
@@ -106,6 +104,7 @@ double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoi
     } else{
         doExperiments(&argList);
     }
+    mutex_delete(&argList.mutex);
     double * result = new double[2];
     result[0] = *argList.win1 / (double)testsNum;
     result[1] = (testsNum - *argList.win1) / (double)testsNum;
