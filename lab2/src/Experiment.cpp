@@ -35,12 +35,12 @@ void mutex_unlock(pthread_mutex_t *mutex){
     }
 }
 
-double doExperiment(int K, int curRound, int firstPoints, int secondPoints){
+double doExperiment(int K, int curRound, int firstPoints, int secondPoints, unsigned int * seed){
     int curFirstPoints = firstPoints;
     int curSecondPoints = secondPoints;
-    for (size_t i = 0; i <= K - curRound ; i++){
-        curFirstPoints += rand() % 6 + rand() % 6 + 2;
-        curSecondPoints += rand() % 6 + rand() % 6 + 2;
+    for (int i = 0; i <= K - curRound ; i++){
+        curFirstPoints += rand_r(seed) % 6 + rand_r(seed) % 6 + 2;
+        curSecondPoints += rand_r(seed) % 6 + rand_r(seed) % 6 + 2;
     }
     if (curFirstPoints > curSecondPoints){
         return 1;
@@ -57,57 +57,62 @@ void* doExperiments(void* input){
     int curRound = data->base[1];
     int firstPoints = data->base[2];
     int secondPoints = data->base[3];                   
-    int testsNum = data->base[4];
-    double res;
+    int testsNum = data->testsNum;
+    unsigned int seed = data->randSeed;
+    double res = 0;
     for (int i = 0; i < testsNum; i++){
-        res += doExperiment(K, curRound, firstPoints, secondPoints);
+        res += doExperiment(K, curRound, firstPoints, secondPoints, &seed);
     }
-    mutex_lock(&data->mutex);
+    mutex_lock(data->mutex);
     *data->win1 += res;
-    mutex_unlock(&data->mutex);
+    mutex_unlock(data->mutex);
     return 0;
 }
 
 double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoints, int testsNum){
-    srand(time(nullptr));
-    experiment argList;
-    argList.base = new int[5];
-    argList.base[0] = K;
-    argList.base[1] = curRound;
-    argList.base[2] = firstPoints;
-    argList.base[3] = secondPoints;
-    argList.base[4] = testsNum;
-    mutex_create(&argList.mutex, nullptr);
+    int * base = new int[4];
+    base[0] = K;
+    base[1] = curRound;
+    base[2] = firstPoints;
+    base[3] = secondPoints;
     double win1 = 0;
-    argList.win1 = &win1;
+    pthread_mutex_t mutex;
+    mutex_create(&mutex, nullptr);
     if (threadsNum > 1){
-        int realThreadsNum = std::min(threadsNum, testsNum);
-        pthread_t threads[realThreadsNum];
+        int realThreadsNum = std::min(threadsNum, testsNum);      
+        std::vector<experiment> argLists(realThreadsNum);
+        std::vector<pthread_t> threads(realThreadsNum);
         int surplusTests = testsNum % realThreadsNum;
         for (int i = 0; i < realThreadsNum; i++){
+            argLists[i] = {
+                base, 0, &win1, (unsigned)time(nullptr) + i, &mutex
+            };
             if (realThreadsNum == testsNum){
-                argList.base[4] = 1;
+                argLists[i].testsNum = 1;
             } else{
                 if (surplusTests == 0){
-                   argList. base[4] = testsNum / realThreadsNum;
+                   argLists[i]. testsNum = testsNum / realThreadsNum;
                 } else{
-                    argList.base[4] = surplusTests + testsNum / realThreadsNum;
+                    argLists[i].testsNum = surplusTests + testsNum / realThreadsNum;
                     surplusTests = 0;
                 }
             }
-            thread_create(&threads[i], nullptr, doExperiments, &argList);
+            thread_create(&threads[i], nullptr, doExperiments, &argLists[i]);
         }
         for(int i = 0; i < realThreadsNum; i++){
             pthread_join(threads[i], nullptr);
         }
 
     } else{
+        experiment argList = {
+            base, testsNum, &win1, (unsigned)time(nullptr), &mutex
+        };
         doExperiments(&argList);
     }
-    mutex_delete(&argList.mutex);
+    mutex_delete(&mutex);
     double * result = new double[2];
-    result[0] = *argList.win1 / (double)testsNum;
-    result[1] = (testsNum - *argList.win1) / (double)testsNum;
-    delete[] argList.base;
+    result[0] = win1 / (double)testsNum;
+    result[1] = (testsNum - win1) / (double)testsNum;
+    delete[] base;
     return result;
 }

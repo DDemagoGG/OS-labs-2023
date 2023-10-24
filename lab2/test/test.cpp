@@ -31,7 +31,7 @@ TEST(ThirdLabTest, PerfomanceTest) {
         int runsCount = 10;
         for(int i = 0; i < runsCount; ++i) {
             auto begin = std::chrono::high_resolution_clock::now();
-            game(threadNum, 10, 1, 0, 0, 100000);
+            game(threadNum, 10, 1, 0, 0, 500000);
             auto end = std::chrono::high_resolution_clock::now();
             avg += std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
         }
