@@ -2,7 +2,7 @@
 #include "Experiment.hpp"
 
 TEST(ThirdLabTests, SingleThreadYieldsCorrectResults){
-    double* res;
+    std::array<double, 2> res;
     res = game(1, 1, 1, 0, 0, 1);
     EXPECT_TRUE((res[0] > 0.4 or res[0] < 0.6) and (res[1] > 0.4 or res[1] < 0.6));
     res = game(1, 10, 10, 15, 1, 10);
@@ -11,7 +11,7 @@ TEST(ThirdLabTests, SingleThreadYieldsCorrectResults){
 
 TEST(ThirdLabTest, ThreadConfigurations){
     auto performTestForGivenSize = [](int K, int curRound, int firstPoints, int secondPoints, int testsNum, int maxThreadCount){
-        double* res1, *res2;
+        std::array<double, 2> res1, res2;
         res1 = game(1, K, curRound, firstPoints, secondPoints, testsNum);
         for(int i = 2; i < maxThreadCount; ++i) {
             res2 = game(i, K, curRound, firstPoints, secondPoints, testsNum);

@@ -14,9 +14,8 @@ int main(int argc, char *argv[]){
     } else{
         int K, curRound, firsttPoints, secondPoints, testsNum;
         std::cin >> K >> curRound >> firsttPoints >> secondPoints >> testsNum;
-        double* result = game(threadsNum, K, curRound, firsttPoints, secondPoints, testsNum);
+        std::array<double, 2> result = game(threadsNum, K, curRound, firsttPoints, secondPoints, testsNum);
         std::cout << result[0] << " - вероятность победы 1 игрока\n" << result[1] << " - вероятность победы 2 игрока\n";
-        delete[] result;
     }
     return 0;   
 }

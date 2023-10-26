@@ -35,7 +35,7 @@ void mutex_unlock(pthread_mutex_t *mutex){
     }
 }
 
-double doExperiment(int K, int curRound, int firstPoints, int secondPoints, unsigned int * seed){
+void doExperiment(int K, int curRound, int firstPoints, int secondPoints, unsigned int * seed, int * res1, int * res2){
     int curFirstPoints = firstPoints;
     int curSecondPoints = secondPoints;
     for (int i = 0; i <= K - curRound ; i++){
@@ -43,11 +43,11 @@ double doExperiment(int K, int curRound, int firstPoints, int secondPoints, unsi
         curSecondPoints += rand_r(seed) % 6 + rand_r(seed) % 6 + 2;
     }
     if (curFirstPoints > curSecondPoints){
-        return 1;
-    } else if (curFirstPoints == curSecondPoints){
-        return 0.5;
+        *res1 += 1;
+    } else if (curFirstPoints < curSecondPoints){
+        *res2 += 1;
     } else{
-        return 0;
+        return;
     }
 }
 
@@ -59,23 +59,25 @@ void* doExperiments(void* input){
     int secondPoints = data->base[3];                   
     int testsNum = data->testsNum;
     unsigned int seed = data->randSeed;
-    double res = 0;
+    int res1 = 0, res2 = 0;
     for (int i = 0; i < testsNum; i++){
-        res += doExperiment(K, curRound, firstPoints, secondPoints, &seed);
+        doExperiment(K, curRound, firstPoints, secondPoints, &seed, &res1, &res2);
     }
     mutex_lock(data->mutex);
-    *data->win1 += res;
+    *data->win1 += res1;
+    *data->win2 += res2;
     mutex_unlock(data->mutex);
     return 0;
 }
 
-double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoints, int testsNum){
-    int * base = new int[4];
+std::array<double, 2> game(int threadsNum, int K, int curRound, int firstPoints, int secondPoints, int testsNum){
+    std::array<int, 4> base;
     base[0] = K;
     base[1] = curRound;
     base[2] = firstPoints;
     base[3] = secondPoints;
-    double win1 = 0;
+    int win1 = 0;
+    int win2 = 0;
     pthread_mutex_t mutex;
     mutex_create(&mutex, nullptr);
     if (threadsNum > 1){
@@ -85,13 +87,13 @@ double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoi
         int surplusTests = testsNum % realThreadsNum;
         for (int i = 0; i < realThreadsNum; i++){
             argLists[i] = {
-                base, 0, &win1, (unsigned)time(nullptr) + i, &mutex
+                base, 0, &win1, &win2, (unsigned)time(nullptr) + i, &mutex
             };
             if (realThreadsNum == testsNum){
                 argLists[i].testsNum = 1;
             } else{
                 if (surplusTests == 0){
-                   argLists[i]. testsNum = testsNum / realThreadsNum;
+                   argLists[i].testsNum = testsNum / realThreadsNum;
                 } else{
                     argLists[i].testsNum = surplusTests + testsNum / realThreadsNum;
                     surplusTests = 0;
@@ -105,14 +107,13 @@ double* game(int threadsNum, int K, int curRound, int firstPoints, int secondPoi
 
     } else{
         experiment argList = {
-            base, testsNum, &win1, (unsigned)time(nullptr), &mutex
+            base, testsNum, &win1, &win2, (unsigned)time(nullptr), &mutex
         };
         doExperiments(&argList);
     }
     mutex_delete(&mutex);
-    double * result = new double[2];
+    std::array<double, 2> result;
     result[0] = win1 / (double)testsNum;
-    result[1] = (testsNum - win1) / (double)testsNum;
-    delete[] base;
+    result[1] = win2 / (double)testsNum;
     return result;
 }
