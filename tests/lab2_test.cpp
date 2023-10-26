@@ -4,9 +4,15 @@
 TEST(ThirdLabTests, SingleThreadYieldsCorrectResults){
     std::array<double, 2> res;
     res = game(1, 1, 1, 0, 0, 1);
-    EXPECT_TRUE((res[0] > 0.4 or res[0] < 0.6) and (res[1] > 0.4 or res[1] < 0.6));
+    EXPECT_TRUE((res[0] == 1 and res[1] == 0) or (res[1] == 1 and res[0] == 0));
     res = game(1, 10, 10, 15, 1, 10);
-    EXPECT_TRUE((res[0] == 1) and (res[1] == 0));
+    EXPECT_TRUE(res[0] == 1);
+    EXPECT_TRUE(res[1] == 0);
+    res = game(1, 10, 1, 0, 0, 1000);
+    EXPECT_TRUE(res[0] > 0.4);
+    EXPECT_TRUE(res[1] > 0.4);
+    EXPECT_TRUE(res[0] < 0.6);
+    EXPECT_TRUE(res[1] < 0.6);
 }
 
 TEST(ThirdLabTest, ThreadConfigurations){
@@ -15,8 +21,8 @@ TEST(ThirdLabTest, ThreadConfigurations){
         res1 = game(1, K, curRound, firstPoints, secondPoints, testsNum);
         for(int i = 2; i < maxThreadCount; ++i) {
             res2 = game(i, K, curRound, firstPoints, secondPoints, testsNum);
-            EXPECT_TRUE((fabs(res1[0] - res2[0]) <= 0.1) and (fabs(res1[1] - res2[1]) <= 0.1));
-            
+            EXPECT_TRUE(fabs(res1[0] - res2[0]) <= 0.1);
+            EXPECT_TRUE(fabs(res1[1] - res2[1]) <= 0.1);
         }
     };
     performTestForGivenSize(10, 1, 0, 0, 10000, 10);

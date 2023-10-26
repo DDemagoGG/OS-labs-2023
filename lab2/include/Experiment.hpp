@@ -4,6 +4,7 @@
 #include <math.h>
 #include <vector>
 #include <array>
+#include <chrono>
 
 struct experiment{
     std::array<int, 4> base;

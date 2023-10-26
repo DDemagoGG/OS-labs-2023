@@ -52,7 +52,7 @@ void doExperiment(int K, int curRound, int firstPoints, int secondPoints, unsign
 }
 
 void* doExperiments(void* input){
-    experiment* data = (experiment *) input;
+    experiment* data = static_cast<experiment*> (input);
     int K = data->base[0];
     int curRound = data->base[1];
     int firstPoints = data->base[2];
@@ -80,36 +80,29 @@ std::array<double, 2> game(int threadsNum, int K, int curRound, int firstPoints,
     int win2 = 0;
     pthread_mutex_t mutex;
     mutex_create(&mutex, nullptr);
-    if (threadsNum > 1){
+    if (threadsNum == 1){
+        experiment argList = {
+            base, testsNum, &win1, &win2, (unsigned)time(nullptr), &mutex
+        };
+        doExperiments(&argList);
+    } else{
         int realThreadsNum = std::min(threadsNum, testsNum);      
         std::vector<experiment> argLists(realThreadsNum);
         std::vector<pthread_t> threads(realThreadsNum);
-        int surplusTests = testsNum % realThreadsNum;
         for (int i = 0; i < realThreadsNum; i++){
             argLists[i] = {
                 base, 0, &win1, &win2, (unsigned)time(nullptr) + i, &mutex
             };
-            if (realThreadsNum == testsNum){
-                argLists[i].testsNum = 1;
-            } else{
-                if (surplusTests == 0){
-                   argLists[i].testsNum = testsNum / realThreadsNum;
-                } else{
-                    argLists[i].testsNum = surplusTests + testsNum / realThreadsNum;
-                    surplusTests = 0;
-                }
+            if (i == realThreadsNum - 1 && testsNum % realThreadsNum) {
+                argLists[i].testsNum = testsNum - i * testsNum / realThreadsNum;
+            } else {
+                argLists[i].testsNum = testsNum / realThreadsNum;
             }
             thread_create(&threads[i], nullptr, doExperiments, &argLists[i]);
         }
         for(int i = 0; i < realThreadsNum; i++){
             pthread_join(threads[i], nullptr);
         }
-
-    } else{
-        experiment argList = {
-            base, testsNum, &win1, &win2, (unsigned)time(nullptr), &mutex
-        };
-        doExperiments(&argList);
     }
     mutex_delete(&mutex);
     std::array<double, 2> result;
