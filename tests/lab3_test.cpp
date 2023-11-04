@@ -11,41 +11,43 @@ int check(std::string const input){
     f.open("test");
     int res;
     f >> res;
+    f.close();
+    remove("./test");
     return res;
 }
 
 TEST(basic_test_set, test_01){
-    ASSERT_EQ(check("1 2 3"), 6);
+    EXPECT_EQ(check("1 2 3"), 6);
 }
 
 TEST(basic_test_set, test_02){
-    ASSERT_EQ(check("0 0 0"), 0);
+    EXPECT_EQ(check("0 0 0"), 0);
 }
 
 TEST(basic_test_set, test_03){
-    ASSERT_EQ(check("-1 -2 -3"), -6);
+    EXPECT_EQ(check("-1 -2 -3"), -6);
 }
 
 TEST(basic_test_set, test_04){
-    ASSERT_EQ(check("11231 342352 344233"), 697816);
+    EXPECT_EQ(check("11231 342352 344233"), 697816);
 }
 
 TEST(basic_test_set, test_05){
-    ASSERT_EQ(check("-99 9394 0 14234 11111 23233 34523 43523 12412"), 148331);
+    EXPECT_EQ(check("-99 9394 0 14234 11111 23233 34523 43523 12412"), 148331);
 }
 
 TEST(basic_test_set, test_06){
-    ASSERT_DEATH(check("abc"), "Invalid input");
+    EXPECT_DEATH(check("abc"), "Invalid input");
 }
 
 TEST(basic_test_set, test_07){
-    ASSERT_DEATH(check(""), "Invalid input");
+    EXPECT_DEATH(check(""), "Invalid input");
 }
 
 TEST(basic_test_set, test_08){
-    ASSERT_DEATH(check("- -1"), "Invalid input");
+    EXPECT_DEATH(check("- -1"), "Invalid input");
 }
 
 TEST(basic_test_set, test_09){
-    ASSERT_DEATH(check("2 3 4 iusadhfjish"), "Invalid input");
+    EXPECT_DEATH(check("2 3 4 iusadhfjish"), "Invalid input");
 }

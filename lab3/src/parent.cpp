@@ -1,17 +1,5 @@
 #include "parent.hpp"
 
-// #include <iostream>
-// #include <unistd.h>
-// #include <fstream>
-// #include <sys/types.h>
-// #include <sys/wait.h>
-// #include <sstream>
-// #include <sys/mman.h>
-// #include <sys/types.h>
-// #include <fcntl.h> 
-// #include <pthread.h>
-// #include <semaphore.h>
-
 int fork_process(){
     pid_t pid = fork();
     if (pid == -1){
@@ -28,6 +16,13 @@ void * create_MMF(void *addr, size_t len, int prot, int flags, int fd, off_t off
         exit(-1);
     }
     return dst;
+}
+
+void delete_MMF(void *addr, size_t len){
+    if (munmap(addr, len) != 0){
+        perror("munmap error!\n");
+        exit(-1);
+    }
 }
 
 int create_shm(const char * name, int oflag, mode_t mode){
@@ -53,7 +48,7 @@ void remove_shm(const char * name){
     }
 }
 
-std::string isValidInput(std::istream &input){
+std::string validInputToString(std::istream &input){
     std::string s;
     getline(input, s);
     int thereIsNumbers = 0;
@@ -87,7 +82,7 @@ void extend_capacity_MMF(MMF * mem, int new_size){
     for(int i = 0; i < mem->addr[0]; i++){
         addr[i] = mem->addr[i];
     }
-    // delete[] mem->addr;
+    delete_MMF(mem->addr, mem->capacity);
     mem->addr = addr;
 }
 
@@ -103,7 +98,7 @@ void processes(std::istream &input){
     const char* pathToChild = getenv("PATH_TO_CHILD");
     std::string f;
     input >> f;
-    std::istringstream buf(isValidInput(input));
+    std::istringstream buf(validInputToString(input));
     std::istream validInput(buf.rdbuf());
     pid_t child = fork_process();
     if (child == 0){
@@ -119,5 +114,6 @@ void processes(std::istream &input){
             push_MMF(&mem, number);
         }
         wait(nullptr);
+        delete_MMF(ptr, mem.capacity);
     }
 }

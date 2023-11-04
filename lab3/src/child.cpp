@@ -13,6 +13,7 @@ int main(int argc, char* argv[]){
     for (int i = 1; i <= ptr[0]; i++){
         sum += ptr[i];
     }
+    delete_MMF(ptr, ptr[0]);
     remove_shm("MMF");
     res << sum;
     return 0;
