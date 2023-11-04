@@ -7,12 +7,13 @@ enable_testing()
 if (MSVC)
     add_compile_options(/W4 /WX)
 else()
-    add_compile_options(-Wall -Wextra -pedantic -Werror)
+    add_compile_options(-Wall -Wextra -pedantic -Werror -g)
 endif()
 
 include(FindThreads)
 
 add_subdirectory(lab1)
 add_subdirectory(lab2)
+add_subdirectory(lab3)
 
 add_subdirectory(tests)
