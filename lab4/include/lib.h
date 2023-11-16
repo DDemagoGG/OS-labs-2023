@@ -3,8 +3,8 @@
 
 #include "stdio.h"
 
-float Square(float A, float B);
-int PrimeCount(int A, int B);
+float Square(float a, float b);
+int PrimeCount(int a, int b);
 int CheckImplementation();
 
 #endif

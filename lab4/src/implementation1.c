@@ -4,9 +4,9 @@ int CheckImplementation(){
     return 1;
 }
 
-int PrimeCount(int A, int B){
+int PrimeCount(int a, int b){
     int prime_counter = 0;
-    for (int i = A; i <= B; i++){
+    for (int i = a; i <= b; i++){
         if (i == 1){
             continue;
         }
@@ -21,6 +21,6 @@ int PrimeCount(int A, int B){
     return prime_counter;
 }
 
-float Square(float A, float B){
-    return A * B;
+float Square(float a, float b){
+    return a * b;
 }

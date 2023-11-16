@@ -5,19 +5,19 @@ int CheckImplementation(){
     return 2;
 }
 
-int PrimeCount(int A, int B){
+int PrimeCount(int a, int b){
     int prime_counter = 0;
-    int * segment = malloc(sizeof(int) * (B + 1));
-    for(int i = 0; i <= B; i++){
+    int * segment = malloc(sizeof(int) * (b + 1));
+    for(int i = 0; i <= b; i++){
         segment[i] = i;
     }
     segment[1] = 0;
-    for(int i = 2; i <= B; i++){
+    for(int i = 2; i <= b; i++){
         if (segment[i] != 0){
-            if (i >= A){
+            if (i >= a){
                 prime_counter++;
             }
-            for(int j = i * i; j <= B; j += i){
+            for(int j = i * i; j <= b; j += i){
                 segment[j] = 0;
             }
         }
@@ -26,6 +26,6 @@ int PrimeCount(int A, int B){
     return prime_counter;
 }
 
-float Square(float A, float B){
-    return A * B / 2;
+float Square(float a, float b){
+    return a * b / 2;
 }
