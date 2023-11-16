@@ -36,3 +36,22 @@ target_include_directories(lab3_test PRIVATE ../lab3/include)
 target_link_libraries(lab3_test PRIVATE GTest::GTest)
 
 add_test(lab3_test lab3_test)
+
+
+add_library(1 SHARED ../lab4/src/implementation1.c)
+add_library(2 SHARED ../lab4/src/implementation2.c)
+
+target_include_directories(1 PUBLIC ../lab4/include)
+target_include_directories(2 PUBLIC ../lab4/include)
+
+add_executable(lab4_static_test lab4_static_test.cpp)
+add_executable(lab4_dynamic_test lab4_dynamic_test.cpp)
+
+target_link_libraries(lab4_static_test PRIVATE 1)
+target_include_directories(lab4_dynamic_test PRIVATE ../lab4/include)
+
+target_link_libraries(lab4_static_test PRIVATE GTest::GTest)
+target_link_libraries(lab4_dynamic_test PRIVATE GTest::GTest)
+
+add_test(lab4_static_test lab4_static_test)
+add_test(lab4_dynamic_test lab4_dynamic_test)
