@@ -1,14 +1,3 @@
-# add_executable(lab5 ./src/manager.cpp main.cpp)
-
-# target_include_directories(lab5 PRIVATE include)
-
-
-# add_executable(computer ./src/computer.cpp ./src/manager.cpp)
-
-# target_include_directories(computer PRIVATE include)
-
-# add_dependencies(lab5 computer)
-
 project(ProjectName)
 cmake_minimum_required(VERSION 3.22)
 

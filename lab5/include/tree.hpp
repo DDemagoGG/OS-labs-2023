@@ -13,20 +13,8 @@ class Tree{
     std::vector<Tree> children;
     int size;
     Tree * parent;
-    void increaseSize(Tree * t){
-        t->size++;
-        if (t->parent){
-            increaseSize(t->parent);
-        }
-    }
-
-    int upToRootChild(Tree * root){
-        if (parent == root){
-            return id;
-        }
-        return parent->upToRootChild(root);
-    }
-
+    void increaseSize(Tree * t);
+    int upToRootChild(Tree * root);
 public:
     Tree(int root_id);
     Tree(int root_id, Tree * parent);

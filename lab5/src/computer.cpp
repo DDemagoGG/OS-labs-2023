@@ -16,9 +16,9 @@ int main (int argc, char const *argv[]){
 	while(alive){
 		parent_socket.recvMsg(parent_msg);
 		if (parent_msg.action == connect){
-			parent_msg.action = sucsess;
+			parent_msg.action = success;
 		} else if (parent_msg.action == create){
-			parent_msg.action = sucsess;
+			parent_msg.action = success;
 			int parent_id = parent_msg.arg1, child_id = parent_msg.arg2;
 			if (parent_id == my_id){
 				new_socket = new BindingSocket(child_id);
@@ -29,7 +29,7 @@ int main (int argc, char const *argv[]){
 					return 0;
 				} else{
 					new_msg.action = connect;
-					if (children[child_id]->sendRecvMsg(&new_msg, reply) and reply.action == sucsess){
+					if (children[child_id]->sendRecvMsg(&new_msg, reply) and reply.action == success){
 						t.push(my_id, child_id);
 					} else{
 						children.erase(child_id);
@@ -39,14 +39,14 @@ int main (int argc, char const *argv[]){
 				int root_child = t.findRootChild(parent_id);
 				new_msg.action = create;
 				new_msg.setMsgArgs(parent_id, child_id);
-				if (children[root_child]->sendNoWaitRecvMsg(&new_msg, reply) and reply.action == sucsess){
+				if (children[root_child]->sendNoWaitRecvMsg(&new_msg, reply) and reply.action == success){
 					t.push(parent_id, child_id);
 				} else{
 					parent_msg.action = fail;
 				}
 			}
 		} else if(parent_msg.action == check){
-			parent_msg.action = sucsess;
+			parent_msg.action = success;
 			int id = parent_msg.arg2;
 			std::string key;
 			key += parent_msg.arg1;
@@ -59,7 +59,7 @@ int main (int argc, char const *argv[]){
 				} else{
 					key += parent_msg.arg1;
 				}
-				parent_msg.action = sucsess;
+				parent_msg.action = success;
 				parent_socket.sendMsg(&parent_msg);
 			}
 			if (id == my_id){
@@ -84,7 +84,7 @@ int main (int argc, char const *argv[]){
 			}
 			continue;
 		} else if (parent_msg.action == add){
-			parent_msg.action = sucsess;
+			parent_msg.action = success;
 			int id = parent_msg.arg2;
 			int value;
 			std::string key;
@@ -125,8 +125,10 @@ int main (int argc, char const *argv[]){
 		}else if (parent_msg.action = ping){
 			std::vector<int> busy_processes;
 			for(auto p : children){
+				new_msg.action = ping;
 				if(p.second->sendNoWaitRecvMsg(&new_msg, reply)){
 					while (reply.action == busy){
+						p.second->sendMsg(&new_msg);
 						busy_processes.push_back(reply.arg1);
 						p.second->recvMsg(reply);
 					}
@@ -137,10 +139,10 @@ int main (int argc, char const *argv[]){
 			for (auto i : busy_processes){
 				parent_msg.action = busy;
 				parent_msg.arg1 = i;
-				parent_socket.sendMsgNoWait(&parent_msg);
-				sleep(1);
+				parent_socket.sendMsg(&parent_msg);
+				parent_socket.recvMsg(reply);					
 			}
-			parent_msg.action = sucsess;
+			parent_msg.action = success;
 		}
 		parent_socket.sendMsgNoWait(&parent_msg);
 	}

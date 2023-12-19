@@ -7,14 +7,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-const int PORT_BASE = 4000;
-const int WAIT_TIME = 1000;
+constexpr int PORT_BASE = 4000;
+constexpr int WAIT_TIME = 1000;
 
 enum ActionType{
     noAction,
     create,
     connect,
-    sucsess,
+    success,
     fail,
     add, 
     check,

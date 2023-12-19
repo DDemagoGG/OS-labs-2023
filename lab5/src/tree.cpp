@@ -1,8 +1,16 @@
 #include "tree.hpp"
 
-Tree::Tree(int root_id) : id(root_id), size(1), parent(nullptr){}
+Tree::Tree(int root_id){
+    id = root_id;
+    size = 1;
+    parent = nullptr;
+}
 
-Tree::Tree(int root_id, Tree * parent) : id(root_id), size(1), parent(parent){}
+Tree::Tree(int root_id, Tree * parent){
+    id = root_id;
+    size = 1;
+    this->parent = parent;
+}
 
 Tree * Tree::find(int id){
     Tree * res;
@@ -66,4 +74,18 @@ void Tree::traversal(std::vector<int> & res){
             children[i].traversal(res);
         }
     }   
+}
+
+void Tree::increaseSize(Tree * t){
+    t->size++;
+    if (t->parent){
+        increaseSize(t->parent);
+    }
+}
+
+int Tree::upToRootChild(Tree * root){
+    if (parent == root){
+        return id;
+    }
+    return parent->upToRootChild(root);
 }

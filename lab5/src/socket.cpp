@@ -1,8 +1,16 @@
 #include "socket.hpp"
 
-Msg::Msg() : action(noAction), arg1(0), arg2(0) {}
+Msg::Msg(){
+    action = noAction;
+    arg1 = 0;
+    arg2 = 0;
+}
 
-Msg::Msg(ActionType action, int arg1, int arg2) : action(action), arg1(arg1), arg2(arg2) {}
+Msg::Msg(ActionType action, int arg1, int arg2){
+    this->action = action;
+    this->arg1 = arg1;
+    this->arg2 = arg2;
+}
 
 void Msg::setMsgArgs(int new_arg1, int new_arg2){
     arg1 = new_arg1;
@@ -28,8 +36,21 @@ int Socket::sendMsg(Msg * m){
     zmq_msg_t input;
     zmq_msg_init(&input);
     zmq_msg_init_size(&input, sizeof(Msg));
-    zmq_msg_init_data(&input, m, sizeof(Msg), NULL, NULL);
+    zmq_msg_init_data(&input, m, sizeof(Msg), nullptr, nullptr);
     int res = zmq_msg_send(&input, getSocket(), 0);
+    if (res == -1){
+        zmq_msg_close(&input);
+        return 0;
+    } 
+    return 1;
+}
+
+int Socket::sendMsgNoWait(Msg * m){
+    zmq_msg_t input;
+    zmq_msg_init(&input);
+    zmq_msg_init_size(&input, sizeof(Msg));
+    zmq_msg_init_data(&input, m, sizeof(Msg), nullptr, nullptr);
+    int res = zmq_msg_send(&input, getSocket(), ZMQ_DONTWAIT);
     if (res == -1){
         zmq_msg_close(&input);
         return 0;
@@ -41,11 +62,12 @@ int Socket::recvMsg(Msg &m){
     zmq_msg_t output;
     zmq_msg_init(&output);
     int res = zmq_msg_recv(&output, getSocket(), 0);
-    m = *static_cast<Msg *>(zmq_msg_data(&output));
-    zmq_msg_close(&output);
     if (res == -1){
+        zmq_msg_close(&output);
         return 0;
     }
+    m = *static_cast<Msg *>(zmq_msg_data(&output));
+    zmq_msg_close(&output);
     return 1;
 }
 
@@ -59,18 +81,6 @@ int Socket::sendRecvMsg(Msg * input, Msg & output){
     return 1;
 }
 
-int Socket::sendMsgNoWait(Msg * m){
-    zmq_msg_t input;
-    zmq_msg_init(&input);
-    zmq_msg_init_size(&input, sizeof(Msg));
-    zmq_msg_init_data(&input, m, sizeof(Msg), NULL, NULL);
-    int res = zmq_msg_send(&input, getSocket(), ZMQ_DONTWAIT);
-    if (res == -1){
-        zmq_msg_close(&input);
-        return 0;
-    } 
-    return 1;
-}
 
 int Socket::sendNoWaitRecvMsg(Msg * input, Msg & output){
     if (!sendMsgNoWait(input)){

@@ -30,7 +30,7 @@ int main (int argc, char const *argv[]){
 					return 0;
 				} else{
 					new_msg.action = connect;
-					if (children[child_id]->sendRecvMsg(&new_msg, reply) and reply.action == sucsess){
+					if (children[child_id]->sendRecvMsg(&new_msg, reply) and reply.action == success){
 						t.push(-1, child_id);
 					} else{
 						children.erase(child_id);
@@ -40,7 +40,7 @@ int main (int argc, char const *argv[]){
 				int root_child = t.findRootChild(parent_id);
 				new_msg.action = create;
 				new_msg.setMsgArgs(parent_id, child_id);
-				if (children[root_child]->sendNoWaitRecvMsg(&new_msg, reply) and reply.action == sucsess){
+				if (children[root_child]->sendNoWaitRecvMsg(&new_msg, reply) and reply.action == success){
 					t.push(parent_id, child_id);
 				} else{
 					std::cout << "Error: Parent is unavailable" << std::endl;
@@ -89,6 +89,7 @@ int main (int argc, char const *argv[]){
 			for(auto p : children){
 				if(p.second->sendNoWaitRecvMsg(&new_msg, reply)){
 					while (reply.action == busy){
+						p.second->sendMsg(&new_msg);
 						busy_processes.push_back(reply.arg1);
 						p.second->recvMsg(reply);
 					}
